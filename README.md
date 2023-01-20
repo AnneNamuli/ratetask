@@ -17,23 +17,19 @@ $ docker-compose up -d --build
 $ docker-compose down --volumes  # deletes persistent data
 ```
 
-- How to rerun
-
+- Show status of running containers by running 
 ```
-docker-compose build && docker-compose up -d && docker-compose ps
+$ docker-compose ps
 ```
-
 - It will show
 
 ```
+annie@annies-mbp~/Documents/ratestask/ratetask> (main)docker-compose ps
        Name                      Command               State                    Ports                 
 ------------------------------------------------------------------------------------------------------
 ratetask_pgadmin_1    /entrypoint.sh                   Up      443/tcp, 0.0.0.0:5050->5050/tcp, 80/tcp
 ratetask_postgres_1   docker-entrypoint.sh postgres    Up      5432/tcp                               
-ratetask_ratetask_1   /bin/sh ./entrypoint.sh py ...   Up      0.0.0.0:8080->8080/tcp  
-```
-
-We currently running 3 services that is postgres(for the database), pgadmin(UI for the database), ratetask which is the core application
+ratetask_ratetask_1   /bin/sh ./entrypoint.sh py ...   Up      0.0.0.0:8080->8080/tcp 
 
 # How to view logs for each service
 
@@ -42,7 +38,7 @@ Run docker-compose logs -f <service_name> in your terminal for example
 - Database
 
 ```
-annie@annies-mbp~/Documents/ratestask/ratetask> (main)dc logs postgres
+annie@annies-mbp~/Documents/ratestask/ratetask> (main)docker-compose logs postgres
 Attaching to ratetask_postgres_1
 postgres_1  | The files belonging to this database system will be owned by user "postgres".
 postgres_1  | This user must also own the server process.
