@@ -1,11 +1,13 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
+from rest_framework.response import Response
+
 
 
 from django.db import connection
 cursor = connection.cursor()
 
-class AveragePrice(APIView):
+class AverageDailyPrice(APIView):
     def get(self, request, *args, **kwargs):
         cursor.execute(
             """
@@ -18,18 +20,21 @@ class AveragePrice(APIView):
                 JOIN ports port ON px.orig_code=port.code
                 JOIN ports port_1 ON px.dest_code=port_1.code 
                 ) sub_query 
-            WHERE sub_query.day between {} AND {}'
-            AND (sub_query.orig_code = {} OR sub_query.origin = {})  
-            AND (sub_query.dest_code = {} OR sub_query.destination = {})
-            group by sub_query.day 
-            order by sub_query.day
+            WHERE sub_query.day BETWEEN '{}' AND '{}'
+            AND (sub_query.orig_code = '{}' OR sub_query.origin = '{}')  
+            AND (sub_query.dest_code = '{}' OR sub_query.destination = '{}')
+            GROUP BY sub_query.day 
+            ORDER BY sub_query.day
             """
             .format(self.kwargs["date_from"], 
                         self.kwargs["date_to"], 
                         self.kwargs['origin'],
                         self.kwargs['origin'],
                         self.kwargs['destination'],
-                        self.kwargs['destination'],
+                        self.kwargs['destination']
                         ))
-
-        print(cursor.fetchall())
+        res = cursor.fetchall()
+        
+        return Response(
+            {"success": True, "daily_prices":  res},
+        )

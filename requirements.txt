@@ -2,4 +2,5 @@ Django
 djangorestframework
 django-filter
 drf-yasg
+tzdata
 psycopg2-binary
