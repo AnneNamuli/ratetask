@@ -2,26 +2,34 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 
 
-# Create your views here.
+from django.db import connection
+cursor = connection.cursor()
 
 class AveragePrice(APIView):
     def get(self, request, *args, **kwargs):
-        pass
+        cursor.execute(
+            """
+            SELECT sub_query.day, avg(sub_query.price) 
+            FROM (
+                SELECT px.orig_code, port.parent_slug "origin", px.dest_code, 
+                    port_1.parent_slug "destination",
+                    px.day, px.price 
+                FROM prices px
+                JOIN ports port ON px.orig_code=port.code
+                JOIN ports port_1 ON px.dest_code=port_1.code 
+                ) sub_query 
+            WHERE sub_query.day between {} AND {}'
+            AND (sub_query.orig_code = {} OR sub_query.origin = {})  
+            AND (sub_query.dest_code = {} OR sub_query.destination = {})
+            group by sub_query.day 
+            order by sub_query.day
+            """
+            .format(self.kwargs["date_from"], 
+                        self.kwargs["date_to"], 
+                        self.kwargs['origin'],
+                        self.kwargs['origin'],
+                        self.kwargs['destination'],
+                        self.kwargs['destination'],
+                        ))
 
-
-class DatasetValidate(APIView):
-    permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
-
-    def post(self, request, *args, **kwargs):
-        json_data = json.loads(request.body.decode())
-        accesible, _ = check_sas_uri_accessible(json_data.get("link"))
-
-        if accesible:
-            return Response(
-                {
-                    "success": True,
-                },
-                status=status.HTTP_200_OK,
-            )
-        raise ValidationError({"message": "Error Accessing URI"})
+        print(cursor.fetchall())
