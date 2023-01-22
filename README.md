@@ -62,6 +62,10 @@ postgres_1  | performing post-bootstrap initialization ... ok
 postgres_1  | syncing data to disk ... ok
 ```
 
+# Relevant links to application UIs
+- API documentation - http://localhost:8080
+- PGAdmin - http://localhost:5050 (credentials can be found in the .env file)
+
 # More docker commands
 
 View all your docker images
