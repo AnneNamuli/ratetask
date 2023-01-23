@@ -1,8 +1,7 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-
-
+from rest_framework import status
 
 from django.db import connection
 cursor = connection.cursor()
@@ -11,7 +10,7 @@ class AverageDailyPrice(APIView):
     def get(self, request, *args, **kwargs):
         cursor.execute(
             """
-            SELECT sub_query.day, avg(sub_query.price) 
+            SELECT sub_query.day, ROUND(AVG(sub_query.price::numeric), 2)
             FROM (
                 SELECT px.orig_code, port.parent_slug "origin", px.dest_code, 
                     port_1.parent_slug "destination",
@@ -34,7 +33,10 @@ class AverageDailyPrice(APIView):
                         self.kwargs['destination']
                         ))
         res = cursor.fetchall()
+
+        keys = ("day", "average_price")
+
+        # convert list of tuples to list
+        res = [dict(zip(keys, values)) for values in res]
         
-        return Response(
-            {"success": True, "daily_prices":  res},
-        )
+        return Response(res, status=status.HTTP_200_OK)
